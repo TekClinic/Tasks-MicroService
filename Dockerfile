@@ -11,7 +11,7 @@ RUN apk add --no-cache git
 WORKDIR /app
 
 # Copy protobuf files
-COPY tasks_protobuf ./patients_protobuf
+COPY ./tasks_protobuf ./tasks_protobuf
 
 # Copy go.mod and go.sum
 COPY ./server/go.mod ./server/go.mod
@@ -40,15 +40,15 @@ COPY . .
 WORKDIR /app/server
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /patients-ms
+RUN CGO_ENABLED=0 GOOS=linux go build -o /tasks-ms
 
 # Production image, copy all the files and run
 FROM golang:1.22-alpine
 
-COPY --from=builder /patients-ms /patients-ms
+COPY --from=builder /tasks-ms /tasks-ms
 
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
 EXPOSE 9090
 
 # Run
-CMD ["/patients-ms"]
+CMD ["/tasks-ms"]

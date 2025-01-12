@@ -3,6 +3,6 @@ go 1.22.0
 toolchain go1.22.2
 
 use (
-	./tasks_protobuf
+	tasks_protobuf
 	server
 )

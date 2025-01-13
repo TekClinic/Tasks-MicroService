@@ -44,3 +44,14 @@ DB_DATABASE=<database_name>
 ```bash
 go run server.go
 ```
+
+## Protobuf
+
+Protobuf generates Go code. You must setup the protobuf compiler with the Go and the gRPC plugins: https://grpc.io/docs/languages/go/quickstart/.
+
+To generate the Go code, we have a Makefile command. After doing the above
+setup, you can just run:
+
+```bash
+make generate-proto
+```

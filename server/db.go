@@ -5,72 +5,54 @@ import (
 	"fmt"
 	"time"
 
+    // TODO: ppb is probably short for ppb. Rename to tasks_pb, tpb, or just pb.
 	ppb "github.com/TekClinic/Tasks-MicroService/tasks_protobuf"
 	"github.com/uptrace/bun"
 )
 
 const yyyy_mm_dd = "2006-01-02"
 
-// PersonalID defines a schema of personal ids.
-type PersonalID struct {
-	ID   string
-	Type string
-}
-
-// EmergencyContact defines a schema of emergency contacts.
-type EmergencyContact struct {
-	ID        int32  `bun:",pk,autoincrement"`
-	Name      string `validate:"required,min=1,max=100"`
-	Closeness string `validate:"required,min=1,max=100"`
-	Phone     string `validate:"required,e164"`
-	PatientID int32
-}
-
-// Task defines a schema of task.
+// Task defines a schema of tasks.
+// TODO: Check the tags, we don't actually understand what they do.
 type Task struct {
-	ID          int32     `bun:",pk,autoincrement"`
-	Active      bool      ``
-	Title       string    `validate:"required,min=1,max=100"`
-	Description string    `validate:"max=500"`
-	Expertise   string    `validate:"required,min=1,max=100"`
-	PatientID   int32     `validate:"min=1,max=100"` // TODO: change to ID in the patients db
-	CreatedAt   time.Time `bun:",nullzero,notnull,default:current_timestamp"`
-	DeletedAt   time.Time `bun:",soft_delete,nullzero"`
+	Id                int32               `bun:",pk,autoincrement" `
+	Complete          bool                ``
+	Title             string              `validate:"required,min=1,max=100"`
+	Description       string              ``
+	Expertise         string              ``
+    PatientId         int32               ``
+	SpecialNote       string              `validate:"max=500"`
+	CreatedAt         time.Time           `bun:",nullzero,notnull,default:current_timestamp"`
+	DeletedAt         time.Time           `bun:",soft_delete,nullzero"`
 }
 
 // toGRPC returns a GRPC version of Task.
 func (task Task) toGRPC() *ppb.Task {
 	return &ppb.Task{
-		Id:          task.ID,
-		Active:      task.Active,
-		Title:       task.Title,
-		Description: task.Description,
-		Expertise:   task.Expertise,
-		PatientId:   task.PatientID,
-		CreatedAt:   task.CreatedAt.Format(yyyy_mm_dd),
-		DeletedAt:   task.DeletedAt.Format(yyyy_mm_dd),
+		Id:                task.Id,
+		Complete:          task.Complete,
+        Title:             task.Title,
+        Description:       task.Description,
+        Expertise:         task.Expertise,
+        PatientId:         task.PatientId,
+        CreatedAt:         task.CreatedAt.Format(yyyy_mm_dd),
 	}
 }
 
 // taskFromGRPC returns a Task from a GRPC version.
 func taskFromGRPC(task *ppb.Task) (Task, error) {
-	created, err1 := time.Parse(yyyy_mm_dd, task.GetCreatedAt())
-	deleted, err2 := time.Parse(yyyy_mm_dd, task.GetDeletedAt())
-	if err1 != nil {
-		return Task{}, fmt.Errorf("failed to parse birth date: %w", err1)
-	}
-	if err2 != nil {
-		return Task{}, fmt.Errorf("failed to parse birth date: %w", err2)
+	created_at, err := time.Parse(yyyy_mm_dd, task.GetCreatedAt())
+	if err != nil {
+		return Task{}, fmt.Errorf("failed to parse task creation date: %w", err)
 	}
 	return Task{
-		ID:          task.GetId(),
-		Active:      task.GetActive(),
-		Title:       task.GetTitle(),
-		Description: task.GetDescription(),
-		Expertise:   task.GetExpertise(),
-		PatientID:   task.GetPatientId(),
-		CreatedAt:   created,
-		DeletedAt:   deleted,
+		Id:                task.GetId(),
+		Complete:          task.GetComplete(),
+        Title:             task.GetTitle(),
+        Description:       task.GetDescription(),
+        Expertise:         task.GetExpertise(),
+        PatientId:         task.GetPatientId(),
+        CreatedAt:         created_at,
 	}, nil
 }
 
@@ -86,15 +68,19 @@ func createSchemaIfNotExists(ctx context.Context, db *bun.DB) error {
 		}
 	}
 
-	// Migration code. Add created_at and deleted_at columns to the patient table for soft delete.
+    /* Copied code from patients microservice. Do we need to add deleted_at?
+	// Migration code. Add created_at and deleted_at columns to the task table for soft delete.
 	if _, err := db.NewRaw(
 		"ALTER TABLE tasks " +
 			"ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now(), " +
-			"ADD COLUMN IF NOT EXISTS deleted_at timestamptz;").Exec(ctx); err != nil {
+			"ADD COLUMN IF NOT EXISTS deleted_at timestamptz, " +
+			"ADD COLUMN IF NOT EXISTS needs_translator BOOLEAN, " + // <-- Add the comma
+			"ALTER COLUMN needs_translator SET DEFAULT false;").Exec(ctx); err != nil {
 		return err
 	}
+    */
 
-	// TODO: fill the column names of the table
+    /* Search code. Also copied from patients microservice.
 	// Postgres specific code. Add a text_searchable column for full-text search.
 	if _, err := db.NewRaw(
 		"ALTER TABLE tasks " +
@@ -102,13 +88,14 @@ func createSchemaIfNotExists(ctx context.Context, db *bun.DB) error {
 			"GENERATED ALWAYS AS " +
 			"(" +
 			"setweight(to_tsvector('simple', coalesce(personal_id_id, '')), 'A') || " +
-			"setweight(to_tsvector('simple', coalesce(, '')), 'A')   || " +
+			"setweight(to_tsvector('simple', coalesce(phone_number, '')), 'A')   || " +
 			"setweight(to_tsvector('simple', coalesce(name, '')), 'B')           || " +
 			"setweight(to_tsvector('simple', coalesce(special_note, '')), 'C')   || " +
-			"setweight(to_tsvector('simple', coalesce(, '')), 'D')" +
+			"setweight(to_tsvector('simple', coalesce(referred_by, '')), 'D')" +
 			") STORED").Exec(ctx); err != nil {
 		return err
 	}
+    */
 
 	return nil
 }

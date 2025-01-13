@@ -4,7 +4,7 @@ option go_package = "github.com/TekClinic/Tasks-MicroService/tasks_protobuf";
 
 package tasks;
 
-service TaskService {
+service TasksService {
   rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
   rpc GetTasksIDs(GetTasksIDsRequest) returns (GetTasksIDsResponse);
   rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
@@ -33,16 +33,14 @@ message GetTasksIDsResponse {
   repeated int32 results = 2;
 }
 
+// Contains only relevant fields for creating a task. For example, a task
+// always starts as not complete, so we don't specify it in this message.
 message CreateTaskRequest {
   string token = 1;
-  int32 id = 2;
-  bool active = 3;
-  string title = 4;
-  string description = 5;
-  string expertise = 6;
-  int32 patientId = 7;
-  string createdAt = 8;
-  string deletedAt = 9;
+  string title = 2;
+  string description = 3;
+  string expertise = 4;
+  int32 patient_id = 5;
 }
 
 message CreateTaskResponse {
@@ -67,11 +65,10 @@ message UpdateTaskResponse {
 
 message Task {
   int32 id = 1;
-  bool active = 2;
+  bool complete = 2;
   string title = 3;
   string description = 4;
   string expertise = 5;
-  int32 patientId = 6;
-  string createdAt = 7;
-  string deletedAt = 8;
+  int32 patient_id = 6;
+  string created_at = 7;
 }

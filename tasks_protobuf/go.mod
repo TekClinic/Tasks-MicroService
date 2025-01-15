@@ -1,4 +1,4 @@
-module github.com/TekClinic/Patients-MicroService/patients_protobuf
+module github.com/TekClinic/Tasks-MicroService/tasks_protobuf
 
 go 1.22
 

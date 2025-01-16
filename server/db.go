@@ -22,6 +22,7 @@ type Task struct {
 	Expertise         string              ``
     PatientId         int32               ``
 	SpecialNote       string              `validate:"max=500"`
+    // These are automatically populated by bun
 	CreatedAt         time.Time           `bun:",nullzero,notnull,default:current_timestamp"`
 	DeletedAt         time.Time           `bun:",soft_delete,nullzero"`
 }

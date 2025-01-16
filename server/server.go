@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"time"
 
 	"go.uber.org/zap"
 
@@ -80,8 +79,6 @@ func (server tasksServer) GetTask(ctx context.Context, req *ppb.GetTaskRequest) 
 // Limit value is used for pagination. Required to be a positive value.
 func (server tasksServer) GetTasksIDs(ctx context.Context,
 	req *ppb.GetTasksIDsRequest) (*ppb.GetTasksIDsResponse, error) {
-    // TODO:
-    /*
 	claims, err := server.VerifyToken(ctx, req.GetToken())
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
@@ -103,6 +100,8 @@ func (server tasksServer) GetTasksIDs(ctx context.Context,
 	var ids []int32
 	baseQuery := server.db.NewSelect().Model((*Task)(nil)).Column("id")
 
+    // TODO: Implement search
+    /*
 	if req.GetSearch() != "" {
 		// Postgres specific code. Use full-text search to search for tasks.
 		baseQuery = baseQuery.
@@ -110,6 +109,7 @@ func (server tasksServer) GetTasksIDs(ctx context.Context,
 			Where("text_searchable @@ query::tsquery", req.GetSearch()).
 			OrderExpr("ts_rank(text_searchable, query::tsquery) DESC")
 	}
+    */
 
 	err = baseQuery.
 		Offset(int(req.GetOffset())).
@@ -127,8 +127,6 @@ func (server tasksServer) GetTasksIDs(ctx context.Context,
 		Count:   int32(count),
 		Results: ids,
 	}, nil
-    */
-    return nil, nil
 }
 
 // CreateTask creates a task with the given specifications.
@@ -151,7 +149,6 @@ func (server tasksServer) CreateTask(ctx context.Context,
         Description:    req.GetDescription(),
         Expertise:      req.GetExpertise(),
         PatientId:      req.GetPatientId(),
-        CreatedAt:      time.Now(),
 	}
 	if err = server.validate.Struct(task); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())

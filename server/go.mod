@@ -8,7 +8,6 @@ require (
 	github.com/TekClinic/MicroService-Lib v0.1.3
 	github.com/TekClinic/Tasks-MicroService/tasks_protobuf v0.100.0-integrated
 	github.com/go-playground/validator/v10 v10.22.0
-	github.com/sa-/slicefunk v0.1.4
 	github.com/uptrace/bun v1.2.1
 	github.com/uptrace/bun/dialect/pgdialect v1.2.1
 	github.com/uptrace/bun/driver/pgdriver v1.2.1
@@ -26,6 +25,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/sa-/slicefunk v0.1.4 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect

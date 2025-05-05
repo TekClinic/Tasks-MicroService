@@ -218,6 +218,7 @@ func (server tasksServer) UpdateTask(ctx context.Context, req *ppb.UpdateTaskReq
 		return nil, status.Error(codes.InvalidArgument, "Task ID is required")
 	}
 
+
 	if err = server.db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
 		// update the task
 		res, txErr := tx.NewUpdate().

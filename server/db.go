@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-    // TODO: ppb is probably short for ppb. Rename to tasks_pb, tpb, or just pb.
+	// TODO: ppb is probably short for ppb. Rename to tasks_pb, tpb, or just pb.
 	ppb "github.com/TekClinic/Tasks-MicroService/tasks_protobuf"
 	"github.com/uptrace/bun"
 )
@@ -42,7 +42,15 @@ func (task Task) toGRPC() *ppb.Task {
 
 // taskFromGRPC returns a Task from a GRPC version.
 func taskFromGRPC(task *ppb.Task) (Task, error) {
-	created_at, err := time.Parse(yyyy_mm_dd, task.GetCreatedAt())
+	created_at_raw := task.GetCreatedAt()
+	var err error
+	var created_at time.Time
+	if created_at_raw != "" {
+		created_at, err = time.Parse(yyyy_mm_dd, task.GetCreatedAt())
+		if err != nil {
+			return Task{}, fmt.Errorf("failed to parse task creation date: %w", err)
+		}
+	}
 	if err != nil {
 		return Task{}, fmt.Errorf("failed to parse task creation date: %w", err)
 	}

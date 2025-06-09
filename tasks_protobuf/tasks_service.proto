@@ -10,6 +10,7 @@ service TasksService {
   rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
   rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
   rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+  rpc GetTasksByPatient(GetTasksByPatientRequest) returns (GetTasksByPatientResponse);
 }
 
 message GetTaskRequest {
@@ -33,8 +34,6 @@ message GetTasksIDsResponse {
   repeated int32 results = 2;
 }
 
-// Contains only relevant fields for creating a task. For example, a task
-// always starts as not complete, so we don't specify it in this message.
 message CreateTaskRequest {
   string token = 1;
   string title = 2;
@@ -61,6 +60,15 @@ message UpdateTaskRequest {
 
 message UpdateTaskResponse {
   int32 id = 1;
+}
+
+message GetTasksByPatientRequest {
+  string token = 1;
+  int32 patient_id = 2;
+}
+
+message GetTasksByPatientResponse {
+  repeated Task tasks = 1;
 }
 
 message Task {

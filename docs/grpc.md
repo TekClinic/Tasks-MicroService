@@ -1,23 +1,23 @@
 ## gRPC Functions
 
-### GetPatient
+### GetTask
 
-Retrieves the details of a specific patient by their ID.
+Retrieves the details of a specific task by its ID.
 
 **Request:**
 
 ```protobuf
-message GetPatientRequest {
+message GetTaskRequest {
   string token = 1; // Authentication token
-  int32 id = 2; // ID of the patient
+  int32 id = 2;     // ID of the task
 }
 ```
 
 **Response:**
 
 ```protobuf
-message GetPatientResponse {
-  Patient patient = 1; // Details of the patient
+message GetTaskResponse {
+  Task task = 1; // Details of the task
 }
 ```
 
@@ -25,31 +25,31 @@ message GetPatientResponse {
 
 - `Unauthenticated` - Token is not valid or expired.
 - `PermissionDenied` - Token is not authorized with the *admin* role.
-- `NotFound` - Patient with the given ID does not exist.
+- `NotFound` - Task with the given ID does not exist.
 
 ---
 
-### GetPatientsIDs
+### GetTasksIDs
 
-Retrieves a list of patient IDs with pagination support.
+Retrieves a paginated list of task IDs with optional search filtering.
 
 **Request:**
 
 ```protobuf
-message GetPatientsIDsRequest {
-  string token = 1; // Authentication token
-  int32 limit = 2; // Maximum number of results to return
-  int32 offset = 3; // Offset for pagination
-  string search = 4; // Search term for filtering results (optional)
+message GetTasksIDsRequest {
+  string token = 1;  // Authentication token
+  int32 limit = 2;   // Maximum number of results
+  int32 offset = 3;  // Pagination offset
+  string search = 4; // Optional search term (e.g., title, description)
 }
 ```
 
 **Response:**
 
 ```protobuf
-message GetPatientsIDsResponse {
-  int32 count = 1; // Total number of patients
-  repeated int32 results = 2; // List of patient IDs
+message GetTasksIDsResponse {
+  int32 count = 1;           // Total number of matching tasks
+  repeated int32 results = 2; // List of task IDs
 }
 ```
 
@@ -61,32 +61,27 @@ message GetPatientsIDsResponse {
 
 ---
 
-### CreatePatient
+### CreateTask
 
-Creates a new patient record with the provided details.
+Creates a new task and assigns it to a patient.
 
 **Request:**
 
 ```protobuf
-message CreatePatientRequest {
-  string token = 1; // Authentication token
-  string name = 2; // Name of the patient
-  Patient.PersonalID personal_id = 3; // Personal ID of the patient
-  Patient.Gender gender = 4; // Gender of the patient (optional)
-  string phone_number = 5; // Phone number of the patient (optional)
-  repeated string languages = 6; // Languages spoken by the patient (optional)
-  string birth_date = 7; // Birth date of the patient
-  repeated Patient.EmergencyContact emergency_contacts = 8; // Emergency contacts of the patient (optional)
-  string referred_by = 9; // Who referred the patient (optional)
-  string special_note = 10; // Special notes regarding the patient (optional)
+message CreateTaskRequest {
+  string token = 1;         // Authentication token
+  string title = 2;         // Title of the task
+  string description = 3;   // Description of the task
+  string expertise = 4;     // Area of expertise related to the task
+  int32 patient_id = 5;     // ID of the patient this task belongs to
 }
 ```
 
 **Response:**
 
 ```protobuf
-message CreatePatientResponse {
-  int32 id = 1; // ID of the newly created patient
+message CreateTaskResponse {
+  int32 id = 1; // ID of the newly created task
 }
 ```
 
@@ -94,55 +89,56 @@ message CreatePatientResponse {
 
 - `Unauthenticated` - Token is not valid or expired.
 - `PermissionDenied` - Token is not authorized with the *admin* role.
-- `InvalidArgument` - Required patient information is missing or malformed.
-
----
-
-### DeletePatient
-
-Deletes a patient record by their ID.
-
-**Request:**
-
-```protobuf
-message DeletePatientRequest {
-  string token = 1; // Authentication token
-  int32 id = 2; // ID of the patient to be deleted
-}
-```
-
-**Response:**
-
-```protobuf
-message DeletePatientResponse {}
-```
-
-**Errors:**
-
-- `Unauthenticated` - Token is not valid or expired.
-- `PermissionDenied` - Token is not authorized with the *admin* role.
+- `InvalidArgument` - Missing or malformed task information.
 - `NotFound` - Patient with the given ID does not exist.
 
 ---
 
-### UpdatePatient
+### DeleteTask
 
-Updates the details of an existing patient.
+Deletes a task by its ID.
 
 **Request:**
 
 ```protobuf
-message UpdatePatientRequest {
+message DeleteTaskRequest {
   string token = 1; // Authentication token
-  Patient patient = 2; // Updated patient details
+  int32 id = 2;     // ID of the task to delete
 }
 ```
 
 **Response:**
 
 ```protobuf
-message UpdatePatientResponse {
-  int32 id = 1; // ID of the updated patient
+message DeleteTaskResponse {}
+```
+
+**Errors:**
+
+- `Unauthenticated` - Token is not valid or expired.
+- `PermissionDenied` - Token is not authorized with the *admin* role.
+- `NotFound` - Task with the given ID does not exist.
+
+---
+
+### UpdateTask
+
+Updates the details of an existing task.
+
+**Request:**
+
+```protobuf
+message UpdateTaskRequest {
+  string token = 1; // Authentication token
+  Task task = 2;    // Updated task details
+}
+```
+
+**Response:**
+
+```protobuf
+message UpdateTaskResponse {
+  int32 id = 1; // ID of the updated task
 }
 ```
 
@@ -150,45 +146,46 @@ message UpdatePatientResponse {
 
 - `Unauthenticated` - Token is not valid or expired.
 - `PermissionDenied` - Token is not authorized with the *admin* role.
-- `InvalidArgument` - Updated patient information is missing or malformed.
-- `NotFound` - Patient with the given ID does not exist.
+- `InvalidArgument` - Malformed or incomplete task data.
+- `NotFound` - Task with the given ID does not exist.
 
 ---
+### GetTasksByPatient
+
+Retrieves all tasks assigned to a specific patient.
+
+**Request:**
+
+```protobuf
+message GetTasksByPatientRequest {
+  string token = 1;     // Authentication token
+  int32 patient_id = 2; // ID of the patient
+}
+```
+
+**Response:**
+
+```protobuf
+message GetTasksByPatientResponse {
+  repeated Task tasks = 1; // List of tasks for the patient
+}
+```
+
+**Errors:**
+- `Unauthenticated` – Token is not valid or expired.
+- `PermissionDenied` – Token is not authorized.
+- `NotFound` – Patient with the given ID does not exist or has no tasks.
 
 ## Model Definition
 
 ```protobuf
-message Patient {
-  int32 id = 1; // ID of the patient
-  bool active = 2; // Flag indicating if the patient is active
-  string name = 3; // Name of the patient
-
-  // Details of the patient
-  message PersonalID {
-    string id = 1; // Personal ID of the patient
-    string type = 2; // Type of personal ID
-  }
-
-  enum Gender {
-    UNSPECIFIED = 0;
-    MALE = 1;
-    FEMALE = 2;
-  }
-
-  message EmergencyContact {
-    string name = 1; // Name of the emergency contact
-    string closeness = 2; // Relationship closeness
-    string phone = 3; // Phone number of the emergency contact
-  }
-
-  PersonalID personal_id = 4; // Personal ID of the patient
-  Gender gender = 5; // Gender of the patient
-  string phone_number = 6; // Phone number of the patient
-  repeated string languages = 7; // Languages spoken by the patient
-  string birth_date = 8; // Birth date of the patient
-  int32 age = 9; // Age of the patient
-  string referred_by = 10; // Who referred the patient
-  repeated EmergencyContact emergency_contacts = 11; // Emergency contacts of the patient
-  string special_note = 12; // Special notes regarding the patient
+message Task {
+  int32 id = 1;             // Task ID
+  bool complete = 2;        // Task completion status
+  string title = 3;         // Title of the task
+  string description = 4;   // Description of the task
+  string expertise = 5;     // Area of expertise required
+  int32 patient_id = 6;     // ID of the associated patient
+  string created_at = 7;    // Timestamp of task creation (RFC3339 format)
 }
 ```
